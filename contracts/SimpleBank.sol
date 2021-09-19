@@ -14,7 +14,7 @@ contract SimpleBank {
     
     // Fill in the visibility keyword. 
     // Hint: We want to protect our users balance from other contracts
-    mapping (address => uint) private balances ;
+    mapping (address => uint) private balances;
     
     // Fill in the visibility keyword
     // Hint: We want to create a getter function and allow contracts to be able
@@ -29,14 +29,14 @@ contract SimpleBank {
      */
     
     // Add an argument for this event, an accountAddress
-    event LogEnrolled(address _accountAddress);
+    event LogEnrolled(address accountAddress);
 
     // Add 2 arguments for this event, an accountAddress and an amount
-    event LogDepositMade(address _accountAddress, uint _amount);
+    event LogDepositMade(address accountAddress, uint amount);
 
     // Create an event called LogWithdrawal
     // Hint: it should take 3 arguments: an accountAddress, withdrawAmount and a newBalance 
-    event LogWithdrawal(address _accountAddress, uint _withdrawAmount, uint _newBalance);
+    event LogWithdrawal(address accountAddress, uint withdrawAmount, uint newBalance);
 
     /* Functions
      */
@@ -55,6 +55,7 @@ contract SimpleBank {
     function getBalance() public view returns (uint) {
       // 1. A SPECIAL KEYWORD prevents function from editing state variables;
       //    allows function to run locally/off blockchain
+      require(enrolled[msg.sender], "you are not a depositor");
       // 2. Get the balance of the sender of this transaction
       return balances[msg.sender];
     }
@@ -65,8 +66,9 @@ contract SimpleBank {
     function enroll() public returns (bool){
       // 1. enroll of the sender of this transaction
       require(enrolled[msg.sender] == false, "address already enrolled");
+      enrolled[msg.sender] = true;
       emit LogEnrolled(msg.sender);
-      return enrolled[msg.sender] = true;
+      return enrolled[msg.sender];
     }
 
     /// @notice Deposit ether into bank
@@ -74,7 +76,7 @@ contract SimpleBank {
     function deposit() public payable returns (uint) {
       // 1. Add the appropriate keyword so that this function can receive ether
       // 2. Users should be enrolled before they can make deposits
-      require(enrolled[msg.sender] == true, "You are not enrolled");
+      require(enrolled[msg.sender], "You are not enrolled");
       // 3. Add the amount to the user's balance. Hint: the amount can be
       //    accessed from of the global variable `msg`
       balances[msg.sender] += msg.value;
